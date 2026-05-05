@@ -1,0 +1,19 @@
+{
+  "name": "Property Rakshak",
+  "short_name": "PropertyRakshak",
+  "icons": [
+    {
+      "src": "https://nethrasnacks.com/uploads/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "https://nethrasnacks.com/uploads/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#0066b3",
+  "background_color": "#ffffff",
+  "display": "standalone"
+}
