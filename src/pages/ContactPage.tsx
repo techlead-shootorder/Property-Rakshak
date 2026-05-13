@@ -1,10 +1,59 @@
 import { Navigation } from '../components/Navigation';
 import { Footer } from '../components/Footer';
 import { Phone, Mail, MessageSquare, CheckCircle } from 'lucide-react';
-import { useForm, ValidationError } from '@formspree/react';
+import { useState } from 'react';
+import emailjs from '@emailjs/browser';
+// EmailJS Configuration
+const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
 export function ContactPage() {
-  const [state, handleSubmit] = useForm("mojreprr");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    subject: '',
+    message: ''
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        {
+          from_name: formData.name,
+          from_email: formData.email,
+          phone: formData.phone,
+          subject: 'New Lead From Property Rakshak',
+          lead_subject: formData.subject,
+          message: formData.message,
+          to_email: 'contact@propertyrakshak.com'
+        },
+        EMAILJS_PUBLIC_KEY
+      );
+      setIsSubmitted(true);
+      setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+    } catch (error) {
+      console.error('EmailJS Error:', error);
+      alert('There was an error sending your message. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
@@ -51,7 +100,7 @@ export function ContactPage() {
                     </div>
                     <div>
                       <p className="text-sm text-slate-500">Email</p>
-                      <p className="text-lg font-medium">sales@propertyrakshak.com</p>
+                      <p className="text-lg font-medium">contact@propertyrakshak.com</p>
                     </div>
                   </div>
                 </div>
@@ -62,7 +111,7 @@ export function ContactPage() {
             <div className="bg-white p-8 rounded-xl shadow-sm">
               <h2 className="text-2xl font-bold text-slate-900 mb-6">Send us a Message</h2>
               
-              {state.succeeded ? (
+              {isSubmitted ? (
                 <div className="text-center py-12">
                   <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <CheckCircle className="w-8 h-8 text-green-600" />
@@ -70,7 +119,7 @@ export function ContactPage() {
                   <h3 className="text-2xl font-semibold text-slate-900 mb-2">Thank You!</h3>
                   <p className="text-slate-600 mb-6">Your message has been sent successfully. We'll get back to you soon.</p>
                   <button
-                    onClick={() => window.location.reload()}
+                    onClick={() => setIsSubmitted(false)}
                     className="text-brand-blue hover:text-brand-blue/90 font-medium"
                   >
                     Send another message
@@ -83,15 +132,12 @@ export function ContactPage() {
                     <input
                       type="text"
                       name="name"
+                      value={formData.name}
+                      onChange={handleChange}
                       className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-blue"
                       placeholder="Your name"
                       required
-                      disabled={state.submitting}
-                    />
-                    <ValidationError 
-                      prefix="Name" 
-                      field="name"
-                      errors={state.errors}
+                      disabled={isSubmitting}
                     />
                   </div>
                   <div>
@@ -99,15 +145,25 @@ export function ContactPage() {
                     <input
                       type="email"
                       name="email"
+                      value={formData.email}
+                      onChange={handleChange}
                       className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-blue"
                       placeholder="your@email.com"
                       required
-                      disabled={state.submitting}
+                      disabled={isSubmitting}
                     />
-                    <ValidationError 
-                      prefix="Email" 
-                      field="email"
-                      errors={state.errors}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Phone</label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-blue"
+                      placeholder="9999999999"
+                      required
+                      disabled={isSubmitting}
                     />
                   </div>
                   <div>
@@ -115,39 +171,33 @@ export function ContactPage() {
                     <input
                       type="text"
                       name="subject"
+                      value={formData.subject}
+                      onChange={handleChange}
                       className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-blue"
                       placeholder="How can we help?"
                       required
-                      disabled={state.submitting}
-                    />
-                    <ValidationError 
-                      prefix="Subject" 
-                      field="subject"
-                      errors={state.errors}
+                      disabled={isSubmitting}
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">Message</label>
                     <textarea
                       name="message"
+                      value={formData.message}
+                      onChange={handleChange}
                       className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-blue"
                       rows={4}
                       placeholder="Your message"
                       required
-                      disabled={state.submitting}
+                      disabled={isSubmitting}
                     ></textarea>
-                    <ValidationError 
-                      prefix="Message" 
-                      field="message"
-                      errors={state.errors}
-                    />
                   </div>
                   <button
                     type="submit"
-                    disabled={state.submitting}
+                    disabled={isSubmitting}
                     className="w-full py-3 px-6 rounded-lg bg-brand-blue hover:bg-brand-blue/90 text-white font-medium transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {state.submitting ? (
+                    {isSubmitting ? (
                       <>
                         <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>

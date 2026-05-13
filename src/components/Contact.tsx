@@ -1,8 +1,62 @@
-import { Phone, Mail, MapPin, CheckCircle } from 'lucide-react';
-import { useForm, ValidationError } from '@formspree/react';
+import { Phone, Mail, CheckCircle } from 'lucide-react';
+import { useState } from 'react';
+import emailjs from '@emailjs/browser';
+// EmailJS Configuration
+const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+
+// Debug logging
+console.log('EmailJS Config:', {
+  serviceId: EMAILJS_SERVICE_ID,
+  templateId: EMAILJS_TEMPLATE_ID,
+  publicKey: EMAILJS_PUBLIC_KEY ? 'Present' : 'Missing'
+});
 
 export function Contact() {
-  const [state, handleSubmit] = useForm("mojreprr");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    message: ''
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        {
+          from_name: formData.name,
+          from_email: formData.email,
+          phone: formData.phone,
+          subject: 'New Lead From Property Rakshak',
+          message: formData.message,
+          to_email: 'contact@propertyrakshak.com'
+        },
+        EMAILJS_PUBLIC_KEY
+      );
+      setIsSubmitted(true);
+      setFormData({ name: '', email: '', phone: '', message: '' });
+    } catch (error) {
+      console.error('EmailJS Error:', error);
+      alert('There was an error sending your message. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <section id="contact" className="py-16 bg-gradient-to-br from-slate-800 to-slate-900 text-white">
@@ -26,12 +80,12 @@ export function Contact() {
                 <div className="p-3 rounded-lg bg-brand-green/10 group-hover:bg-brand-green/20 transition-colors">
                   <Mail className="w-6 h-6 text-brand-green" />
                 </div>
-                <span className="ml-4 text-slate-300 group-hover:text-white transition-colors">sales@propertyrakshak.com</span>
+                <span className="ml-4 text-slate-300 group-hover:text-white transition-colors">contact@propertyrakshak.com</span>
               </div>
             </div>
           </div>
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 md:p-8 shadow-xl">
-            {state.succeeded ? (
+            {isSubmitted ? (
               <div className="text-center py-12">
                 <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <CheckCircle className="w-8 h-8 text-green-400" />
@@ -39,7 +93,7 @@ export function Contact() {
                 <h3 className="text-2xl font-semibold text-white mb-2">Thank You!</h3>
                 <p className="text-slate-300 mb-6">Your message has been sent successfully. We'll get back to you soon.</p>
                 <button
-                  onClick={() => window.location.reload()}
+                  onClick={() => setIsSubmitted(false)}
                   className="text-brand-green hover:text-brand-green/90 font-medium"
                 >
                   Send another message
@@ -52,15 +106,12 @@ export function Contact() {
                   <input
                     type="text"
                     name="name"
+                    value={formData.name}
+                    onChange={handleChange}
                     className="w-full px-4 py-3 rounded-lg bg-white/5 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-green text-white placeholder-slate-400"
                     placeholder="Your name"
                     required
-                    disabled={state.submitting}
-                  />
-                  <ValidationError 
-                    prefix="Name" 
-                    field="name"
-                    errors={state.errors}
+                    disabled={isSubmitting}
                   />
                 </div>
                 <div>
@@ -68,39 +119,46 @@ export function Contact() {
                   <input
                     type="email"
                     name="email"
+                    value={formData.email}
+                    onChange={handleChange}
                     className="w-full px-4 py-3 rounded-lg bg-white/5 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-green text-white placeholder-slate-400"
                     placeholder="your@email.com"
                     required
-                    disabled={state.submitting}
+                    disabled={isSubmitting}
                   />
-                  <ValidationError 
-                    prefix="Email" 
-                    field="email"
-                    errors={state.errors}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Phone</label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 rounded-lg bg-white/5 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-green text-white placeholder-slate-400"
+                    placeholder="9999999999"
+                    required
+                    disabled={isSubmitting}
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-300 mb-2">Message</label>
                   <textarea
                     name="message"
+                    value={formData.message}
+                    onChange={handleChange}
                     className="w-full px-4 py-3 rounded-lg bg-white/5 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-green text-white placeholder-slate-400"
                     rows={4}
                     placeholder="How can we help you?"
                     required
-                    disabled={state.submitting}
+                    disabled={isSubmitting}
                   ></textarea>
-                  <ValidationError 
-                    prefix="Message" 
-                    field="message"
-                    errors={state.errors}
-                  />
                 </div>
                 <button
                   type="submit"
-                  disabled={state.submitting}
+                  disabled={isSubmitting}
                   className="w-full py-3 rounded-lg bg-brand-green hover:bg-brand-green/90 text-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {state.submitting ? (
+                  {isSubmitting ? (
                     <>
                       <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>

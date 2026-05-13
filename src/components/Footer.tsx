@@ -53,7 +53,7 @@ export function Footer() {
               </li>
               <li className="flex items-start space-x-3">
                 <Mail className="w-5 h-5 text-brand-green mt-0.5 flex-shrink-0" />
-                <a href="mailto:sales@propertyrakshak.com" className="text-slate-400 hover:text-brand-green transition-colors">sales@propertyrakshak.com</a>
+                <a href="mailto:contact@propertyrakshak.com" className="text-slate-400 hover:text-brand-green transition-colors">contact@propertyrakshak.com</a>
               </li>
               <li className="flex items-start space-x-3">
                 <MapPin className="w-5 h-5 text-brand-green mt-0.5 flex-shrink-0" />
