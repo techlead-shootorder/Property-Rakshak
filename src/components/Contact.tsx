@@ -74,7 +74,7 @@ export function Contact() {
                 <div className="p-3 rounded-lg bg-brand-green/10 group-hover:bg-brand-green/20 transition-colors">
                   <Phone className="w-6 h-6 text-brand-green" />
                 </div>
-                <span className="ml-4 text-slate-300 group-hover:text-white transition-colors"><a href="tel:+919948393030">+91 99483 93030</a></span>
+                <span className="ml-4 text-slate-300 group-hover:text-white transition-colors"><a href="tel:+919281193030">+91 92811 93030</a></span>
                 </div>
               <div className="flex items-center group">
                 <div className="p-3 rounded-lg bg-brand-green/10 group-hover:bg-brand-green/20 transition-colors">

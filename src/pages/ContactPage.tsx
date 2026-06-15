@@ -91,7 +91,7 @@ export function ContactPage() {
                     </div>
                     <div>
                       <p className="text-sm text-slate-500">Phone</p>
-                      <p className="text-lg font-medium"><a href="tel:+919948393030">+91 99483 93030</a></p>
+                      <p className="text-lg font-medium"><a href="tel:+919281193030">+91 92811 93030</a></p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-4">
